@@ -60,7 +60,7 @@ void InputEventHandler::eventLoop()
                     processEvent(ev);
                     break;
                 case EV_KEY:
-
+                    // TODO: Handle button events
                     break;
                 default:
                     break;
@@ -157,10 +157,7 @@ void listSupportedInputs(const std::string& devicePath) {
     close(fd);
 }
 
-
-//##############################################//
-//---------------Helper functions---------------//
-//##############################################//
+// Global helper functions
 // TODO: Implement automatic connection to correct device.
 // Simple terminal interface to continue with the option (Fanatec)
 

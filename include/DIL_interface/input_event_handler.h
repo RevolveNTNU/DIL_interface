@@ -49,8 +49,8 @@ private:
 
     void eventLoop();
     void processEvent(const struct input_event& ev);
-    // InputType mapInput(int type, int code);
     double normalizeAxis(int value, int min, int max);
+    // InputType mapInput(int type, int code);
 };
 
 #endif // INPUT_EVENT_HANDLER_H

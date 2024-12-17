@@ -23,6 +23,12 @@ InputEventHandler::~InputEventHandler()
     if (fd >= 0) close(fd);
 }
 
+/**
+ * @brief Start the event loop thread
+ * 
+ * Launches the thread by passing in the non-static member function ``eventLoop()``
+ * as reference. The thread will run until the ``running`` flag is set to false.
+ */
 void InputEventHandler::start()
 {
     if (!dev)
@@ -36,6 +42,11 @@ void InputEventHandler::start()
     std::cout << "Initialized event loop thread.\n";
 }
 
+/**
+ * @brief Stop the event loop thread.
+ * 
+ * Sets the ``running`` flag to false and waits for the event loop thread to join.
+ */
 void InputEventHandler::stop()
 {
     running = false;
@@ -46,6 +57,11 @@ void InputEventHandler::stop()
     std::cout << "Stopped event loop thread.\n";
 }
 
+/**
+ * @brief Event loop for processing input event types.
+ * 
+ * The event loop reads the next event from the input device and processes it.
+ */
 void InputEventHandler::eventLoop()
 {
     struct input_event ev;
@@ -57,10 +73,10 @@ void InputEventHandler::eventLoop()
             switch (ev.type)
             {
                 case EV_ABS:
-                    processEvent(ev);
+                    processAxisEvent(ev);
                     break;
                 case EV_KEY:
-                    // TODO: Handle button events
+                    // TODO: Process button events.
                     break;
                 default:
                     break;
@@ -68,6 +84,7 @@ void InputEventHandler::eventLoop()
         }
         else if (rc == -EAGAIN)
         {
+            // Stalling the thread until the next event is available.
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         else if (rc == -ENODEV)
@@ -82,43 +99,81 @@ void InputEventHandler::eventLoop()
     }
 }
 
-void InputEventHandler::processEvent(const struct input_event& ev)
+void InputEventHandler::processAxisEvent(const struct input_event& ev)
 {
     switch (ev.code)
     {
         case ABS_X:
-            steering = normalizeAxis(ev.value, 0, 65535);
+            // Normalize steering value to range [-1, 1]
+            steering = normalizeYokeAxis(ev.value, 0, 65535);
             break;
         case ABS_Y:
-            throttle = normalizeAxis(ev.value, 0, 255);
+            // Normalize throttle value to range [0, 1]
+            throttle = normalizePedalAxis(ev.value, 0, 255);
             break;
         case ABS_Z:
-            brake = normalizeAxis(ev.value, 0, 255);
+            // Normalize brake value to range [0, 1]
+            brake = normalizePedalAxis(ev.value, 0, 255);
             break;
         default:
             break;
     }
 }
 
-double InputEventHandler::normalizeAxis(int value, int min, int max)
+/**
+ * @brief Normalize the yoke axis value to the range [-1, 1].
+ * @param value Raw axis event value.
+ * @param min Minimum raw axis event value.
+ * @param max Maximum raw axis event value.
+ * @return double
+ */
+double InputEventHandler::normalizeYokeAxis(int value, int min, int max)
 {
     return 2.0 * (value - min) / (max - min) - 1.0;
 }
 
+/**
+ * @brief Normalize the pedal axis value to the range [0, 1].
+ * @param value Raw axis event value.
+ * @param min Minimum raw axis event value.
+ * @param max Maximum raw axis event value.
+ * @return double
+ */
+double InputEventHandler::normalizePedalAxis(int value, int min, int max)
+{
+    return (value - min) / (max - min);
+}
+
+/**
+ * @brief Get the current normalized steering value.
+ * @return double 
+ */
 double InputEventHandler::getSteering() const
 {
     return steering;
 }
 
+/**
+ * @brief Get the current normalized throttle value.
+ * @return double 
+ */
 double InputEventHandler::getThrottle() const
 {
     return throttle;
 }
 
+/**
+ * @brief Get the current normalized brake value.
+ * @return double 
+ */
 double InputEventHandler::getBrake() const
 {
     return brake;
 }
+
+// Global helper functions
+// TODO: Implement automatic connection to correct device.
+// Simple terminal interface to continue with the option (Fanatec)
 
 void listSupportedInputs(const std::string& devicePath) {
     int fd = open(devicePath.c_str(), O_RDONLY | O_NONBLOCK);
@@ -156,10 +211,6 @@ void listSupportedInputs(const std::string& devicePath) {
     libevdev_free(dev);
     close(fd);
 }
-
-// Global helper functions
-// TODO: Implement automatic connection to correct device.
-// Simple terminal interface to continue with the option (Fanatec)
 
 bool isDeviceConnected(const std::string& devicePath) {
     int fd = open(devicePath.c_str(), O_RDONLY | O_NONBLOCK);

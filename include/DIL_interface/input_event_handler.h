@@ -21,6 +21,16 @@ enum class InputType
     // Buttons
 };
 
+/**
+ * @class InputEventHandler
+ * @brief Handles input events from an input device using the libevdev library.
+ * 
+ * The InputEventHandler class opens the input device from ``/dev/input/``, initializes
+ * it using libevdev, and manages its lifecycle. This includes processing axis events by 
+ * event code and normalizing values to appropriate ranges.
+ * 
+ * 
+ */
 class InputEventHandler 
 {
 public:
@@ -36,10 +46,12 @@ public:
 
 private:
     std::string devicePath;
-    struct libevdev *dev;
-    int fd;
+    struct libevdev *dev;    // libevdev device
+    int fd;                  // File descriptor for the input device
 
     std::thread eventThread;
+    // Using atomic boolean flag to ensure thread safety and avoid undefined behavior.
+    // ``running`` will always be visible to the event loop thread.
     std::atomic<bool> running;
 
     double steering;
@@ -48,8 +60,12 @@ private:
     std::unordered_map<InputType, bool> buttonStates;
 
     void eventLoop();
-    void processEvent(const struct input_event& ev);
-    double normalizeAxis(int value, int min, int max);
+    void processAxisEvent(const struct input_event& ev);
+    // TODO: void processButtonEvent(const struct input_event& ev);
+
+    double normalizeYokeAxis(int value, int min, int max);
+    double normalizePedalAxis(int value, int min, int max);
+
     // InputType mapInput(int type, int code);
 };
 

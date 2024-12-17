@@ -6,7 +6,6 @@
 #include <thread>
 #include <atomic>
 #include <unordered_map>
-#include <functional>
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>

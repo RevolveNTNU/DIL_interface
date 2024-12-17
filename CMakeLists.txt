@@ -13,6 +13,7 @@ set(PRIVATE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 add_library(DIL_interface SHARED
     src/input_event_handler.cpp
+    src/output_event_handler.cpp
 )
 
 target_include_directories(DIL_interface

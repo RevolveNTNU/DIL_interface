@@ -16,3 +16,10 @@ sudo apt-get install libevdev-dev
 ```Docker
 RUN apt-get update && apt-get install -y libevdev-dev
 ```
+### How to find correct ``/dev/input/eventX`` device:
+Connect racing gear and run the following.
+```bash
+sudo apt-get install evtest #install evtest
+sudo evtest
+```
+All available devices should be listed with names and event number. Select **Fanatec FANATEC CSL Elite Wheel Base**, and data from said device should be logged when e.g. turning the wheel.

@@ -2,7 +2,7 @@
 
 OutputEventHandler::OutputEventHandler(const std::string& path) : devicePath(path), dev(nullptr), fd(-1), running(false)
 {
-    fd = open(devicePath.c_str(), O_WRONLY | O_NONBLOCK);
+    fd = open(devicePath.c_str(), O_RDWR);
     if (fd < 0)
     {
         throw std::runtime_error("Failed to open output device from event: " + devicePath + '\n');
@@ -45,29 +45,61 @@ void OutputEventHandler::stop()
     std::cout << "Stopped feedback loop thread.\n";
 }
 
-void OutputEventHandler::sendConstantForce(int level, int duration_ms) {
-    struct ff_effect effect = {};
+
+/**
+ * @brief Convert a normalized steering angle [-1, 1] to force feedback direction.
+ *
+ * @param steering Steering angle in range [-1, 1].
+ * @return uint16_t Direction value (0x0000 - 0xFFFF).
+ */
+uint16_t OutputEventHandler::steeringToDirection(double steering)
+{
+    // Change to std::clamp ?
+    if (steering < -1.0) steering = -1.0;
+    if (steering > 1.0) steering = 1.0;
+
+    uint16_t direction = static_cast<uint16_t>(0x4000 + steering * 0x8000);
+
+    return direction;
+}
+
+void OutputEventHandler::setSteering(double st)
+{
+    steering = st;
+}
+
+void OutputEventHandler::sendConstantForce(int level, int duration_ms) 
+{
+    if (level < -MAX_FORCE || level > MAX_FORCE)
+    {
+        throw std::invalid_argument("Force level must be in range [-32767, 32767].\n");
+    }
+
+    struct ff_effect effect;
     memset(&effect, 0, sizeof(effect));
 
     effect.type = FF_CONSTANT;
-    effect.id = -1; 
-    effect.u.constant.level = level;   
-    effect.replay.length = duration_ms;
+    effect.id = -1;
+    effect.u.constant.level = level;
+    effect.direction = steeringToDirection(steering);
 
+    // Upload the effect to the driver
     if (ioctl(fd, EVIOCSFF, &effect) < 0) {
-        perror("Failed to upload force feedback effect");
+        perror("Failed to upload FF_CONSTANT effect");
         return;
     }
 
+    // Play the uploaded effect
     struct input_event play = {};
-    play.type = EV_FF;
-    play.code = effect.id;
-    play.value = 1; 
+    play.type = EV_FF;        // Force feedback event type
+    play.code = effect.id;    // Effect ID
+    play.value = 1;           // Trigger the effect
 
     if (write(fd, &play, sizeof(play)) < 0) {
-        perror("Failed to play force feedback effect");
+        perror("Failed to play FF_CONSTANT effect");
     } else {
-        std::cout << "Force feedback effect sent successfully.\n";
+        std::cout << "Force feedback sent: Level = " << level
+                  << ", Duration = " << duration_ms << " ms\n";
     }
 }
 

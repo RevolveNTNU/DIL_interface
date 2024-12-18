@@ -20,6 +20,10 @@ public:
     void start();
     void stop();
 
+    uint16_t steeringToDirection(double steering);
+
+    void setSteering(double st);
+
 private:
     std::string devicePath;
     struct libevdev *dev;    // libevdev device
@@ -28,8 +32,12 @@ private:
     std::thread outputThread;
     std::atomic<bool> running;
 
+    static constexpr int MAX_FORCE = 0x7FFF;
+
     void feedbackLoop();
     void sendConstantForce(int level, int duration_ms);
+
+    double steering;
 };
 
 #endif // OUTPUT_EVENT_HANDLER_H

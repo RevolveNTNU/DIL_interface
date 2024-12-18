@@ -23,3 +23,15 @@ sudo apt-get install evtest #install evtest
 sudo evtest
 ```
 All available devices should be listed with names and event number. Select **Fanatec FANATEC CSL Elite Wheel Base**, and data from said device should be logged when e.g. turning the wheel.
+
+### How to force feedback:
+
+Make sure force feedback works by using the ``fftest`` utility. Download the ``joystick`` package to get access to this on your computer.
+```bash
+sudo apt-get install joystick
+```
+Make sure the device is connected, and find the correct event. Now, when running 
+```bash
+sudo fftest /dev/input/eventX
+```
+you should be met by the **Force feedback test program**. Simply follow the instructions to test the different force feedback effects. Make sure the steering wheel is *properly* connected to the wheel base and fastened. Force feedback will not work unless this is done.

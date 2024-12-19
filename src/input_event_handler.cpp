@@ -1,6 +1,6 @@
 #include "DIL_interface/input_event_handler.h"
 
-InputEventHandler::InputEventHandler(const std::string& path) : devicePath(path) ,dev(nullptr), fd(-1), steering(0.0), throttle(0.0), brake(0.0), running(false) 
+InputEventHandler::InputEventHandler(const std::string& path) : devicePath(path) ,dev(nullptr), fd(-1), steering(0.0), throttle(0.0), brake(0.0)
 {
     fd = open(devicePath.c_str(), O_RDONLY | O_NONBLOCK);
     if (fd < 0) 
@@ -36,8 +36,8 @@ void InputEventHandler::start()
         std::cerr << "Error: libevdev device is not initialized.\n";
         return;
     }
-    running = true;
-    
+    RUNNING.store(true);
+
     eventThread = std::thread(&InputEventHandler::eventLoop, this);
     std::cout << "Initialized event loop thread.\n";
 }
@@ -49,7 +49,8 @@ void InputEventHandler::start()
  */
 void InputEventHandler::stop()
 {
-    running = false;
+    RUNNING.store(false);
+
     if (eventThread.joinable()) 
     {
         eventThread.join();
@@ -65,7 +66,7 @@ void InputEventHandler::stop()
 void InputEventHandler::eventLoop()
 {
     struct input_event ev;
-    while (running)
+    while (RUNNING.load())
     {
         int rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
         if (rc == 0)

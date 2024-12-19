@@ -1,6 +1,8 @@
 #ifndef OUTPUT_EVENT_HANDLER_H
 #define OUTPUT_EVENT_HANDLER_H
 
+#include "DIL_interface/shared_state.h"
+
 #include <libevdev-1.0/libevdev/libevdev.h>
 #include <linux/input.h>
 #include <string>
@@ -30,7 +32,6 @@ private:
     int fd;                  // File descriptor for the input device
 
     std::thread outputThread;
-    std::atomic<bool> running;
 
     static constexpr int MAX_FORCE = 0x7FFF;
 

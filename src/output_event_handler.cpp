@@ -1,6 +1,6 @@
 #include "DIL_interface/output_event_handler.h"
 
-OutputEventHandler::OutputEventHandler(const std::string& path) : devicePath(path), dev(nullptr), fd(-1), running(false), steering(0.0)
+OutputEventHandler::OutputEventHandler(const std::string& path) : devicePath(path), dev(nullptr), fd(-1), steering(0.0)
 {
     fd = open(devicePath.c_str(), O_RDWR);
     if (fd < 0)
@@ -30,14 +30,14 @@ OutputEventHandler::~OutputEventHandler()
 
 void OutputEventHandler::start()
 {
-    running = true;
+    RUNNING.store(true);
     outputThread = std::thread(&OutputEventHandler::feedbackLoop, this);
     std::cout << "Initialized feedback loop thread.\n";
 }
 
 void OutputEventHandler::stop()
 {
-    running = false;
+    RUNNING.store(false);
     if (outputThread.joinable())
     {
         outputThread.join();
@@ -113,7 +113,7 @@ void OutputEventHandler::sendConstantForce(int level, int duration_ms)
 
 void OutputEventHandler::feedbackLoop()
 {
-    while (running)
+    while (RUNNING.load())
     {
         sendConstantForce(0x0900, 1000);
         std::this_thread::sleep_for(std::chrono::seconds(2));

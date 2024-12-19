@@ -1,6 +1,8 @@
 #ifndef INPUT_EVENT_HANDLER_H
 #define INPUT_EVENT_HANDLER_H
 
+#include "DIL_interface/shared_state.h"
+
 #include <libevdev-1.0/libevdev/libevdev.h>
 #include <string>
 #include <thread>
@@ -49,9 +51,6 @@ private:
     int fd;                  // File descriptor for the input device
 
     std::thread eventThread;
-    // Using atomic boolean flag to ensure thread safety and avoid undefined behavior.
-    // ``running`` will always be visible to the event loop thread.
-    std::atomic<bool> running;
 
     double steering;
     double throttle;

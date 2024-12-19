@@ -7,7 +7,6 @@
 #include <linux/input.h>
 #include <string>
 #include <thread>
-#include <atomic>
 #include <fcntl.h>
 #include <unistd.h>
 #include <iostream>

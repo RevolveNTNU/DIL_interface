@@ -6,8 +6,6 @@
 #include <libevdev-1.0/libevdev/libevdev.h>
 #include <string>
 #include <thread>
-#include <atomic>
-#include <unordered_map>
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>

@@ -1,6 +1,6 @@
 #include "DIL_interface/output_event_handler.h"
 
-OutputEventHandler::OutputEventHandler(const std::string& path) : devicePath(path), dev(nullptr), fd(-1), running(false)
+OutputEventHandler::OutputEventHandler(const std::string& path) : devicePath(path), dev(nullptr), fd(-1), running(false), steering(0.0)
 {
     fd = open(devicePath.c_str(), O_RDWR);
     if (fd < 0)
@@ -54,7 +54,6 @@ void OutputEventHandler::stop()
  */
 uint16_t OutputEventHandler::steeringToDirection(double steering)
 {
-    // Change to std::clamp ?
     if (steering < -1.0) steering = -1.0;
     if (steering > 1.0) steering = 1.0;
 
@@ -68,6 +67,16 @@ void OutputEventHandler::setSteering(double st)
     steering = st;
 }
 
+/**
+ * @brief Send a constant force feedback effect to the output device.
+ * 
+ * This method is mostly just for testing purposes. I am currently using it
+ * to get a feel for how the force feedback works and how it can be controlled.
+ * This includes the related functions ``steeringToDirection()`` and ``setSteering()``.
+ *
+ * @param level Force level in range [-32767, 32767].
+ * @param duration_ms Duration of the effect in milliseconds.
+ */
 void OutputEventHandler::sendConstantForce(int level, int duration_ms) 
 {
     if (level < -MAX_FORCE || level > MAX_FORCE)
@@ -82,18 +91,17 @@ void OutputEventHandler::sendConstantForce(int level, int duration_ms)
     effect.id = -1;
     effect.u.constant.level = level;
     effect.direction = steeringToDirection(steering);
+    effect.replay.length = duration_ms;
 
-    // Upload the effect to the driver
     if (ioctl(fd, EVIOCSFF, &effect) < 0) {
         perror("Failed to upload FF_CONSTANT effect");
         return;
     }
 
-    // Play the uploaded effect
     struct input_event play = {};
-    play.type = EV_FF;        // Force feedback event type
-    play.code = effect.id;    // Effect ID
-    play.value = 1;           // Trigger the effect
+    play.type = EV_FF;        
+    play.code = effect.id;    
+    play.value = 1;           
 
     if (write(fd, &play, sizeof(play)) < 0) {
         perror("Failed to play FF_CONSTANT effect");
@@ -107,7 +115,7 @@ void OutputEventHandler::feedbackLoop()
 {
     while (running)
     {
-        sendConstantForce(0x4000, 1000);
-        // std::this_thread::sleep_for(std::chrono::seconds(2));
+        sendConstantForce(0x0900, 1000);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }

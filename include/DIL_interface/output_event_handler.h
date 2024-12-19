@@ -13,6 +13,16 @@
 #include <iostream>
 #include <cstring>
 
+/**
+ * @class OutputEventHandler
+ * 
+ * @brief Handles output events using ``ioctl()`` and the libevdev library.
+ * 
+ * The OutputEventHandler class opens the output device from ``/dev/input/``,
+ * with write permissions, initializes it using libevdev, and manages its lifecycle.
+ * This allows for sending force feedback effects to the output device.
+ * 
+ */
 class OutputEventHandler
 {
 public:
@@ -38,7 +48,7 @@ private:
     void feedbackLoop();
     void sendConstantForce(int level, int duration_ms);
 
-    double steering;
+    double steering;         // Normalized steering value [-1, 1]
 };
 
 #endif // OUTPUT_EVENT_HANDLER_H

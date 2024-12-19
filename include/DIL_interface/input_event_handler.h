@@ -16,12 +16,6 @@
 #include <dirent.h>
 #include <cstring>
 
-enum class InputType
-{
-    NONE
-    // Buttons
-};
-
 /**
  * @class InputEventHandler
  * @brief Handles input events from an input device using the libevdev library.
@@ -29,7 +23,6 @@ enum class InputType
  * The InputEventHandler class opens the input device from ``/dev/input/``, initializes
  * it using libevdev, and manages its lifecycle. This includes processing axis events by 
  * event code and normalizing values to appropriate ranges.
- * 
  * 
  */
 class InputEventHandler 
@@ -55,7 +48,7 @@ private:
     double steering;
     double throttle;
     double brake;
-    std::unordered_map<InputType, bool> buttonStates;
+    // std::unordered_map<InputType, bool> buttonStates;
 
     void eventLoop();
     void processAxisEvent(const struct input_event& ev);

@@ -1,5 +1,10 @@
 #include "DIL_interface/output_event_handler.h"
 
+/**
+ * @brief Construct a new Output Event Handler:: Output Event Handler object
+ * 
+ * @param path Path to the output device.
+ */
 OutputEventHandler::OutputEventHandler(const std::string& path) : devicePath(path), dev(nullptr), fd(-1), steering(0.0)
 {
     fd = open(devicePath.c_str(), O_RDWR);
@@ -21,6 +26,11 @@ OutputEventHandler::OutputEventHandler(const std::string& path) : devicePath(pat
     std::cout << "Output device initialized successfully: " << libevdev_get_name(dev) << '\n';
 }
 
+/**
+ * @brief Destroy the Output Event Handler:: Output Event Handler object
+ * 
+ * Stops the feedback loop thread and frees the libevdev device and file descriptor.
+ */
 OutputEventHandler::~OutputEventHandler()
 {
     stop();
@@ -28,6 +38,12 @@ OutputEventHandler::~OutputEventHandler()
     if (fd >= 0) close(fd);
 }
 
+/**
+ * @brief Start the feedback loop thread.
+ * 
+ * Launches the thread by passing in the non-static member function ``feedbackLoop()``
+ * as reference. The thread will run until the shared ``RUNNING`` flag is set to false.
+ */
 void OutputEventHandler::start()
 {
     RUNNING.store(true);
@@ -35,6 +51,11 @@ void OutputEventHandler::start()
     std::cout << "Initialized feedback loop thread.\n";
 }
 
+/**
+ * @brief Stop the feedback loop thread.
+ * 
+ * Sets the shared ``RUNNING`` flag to false and waits for the feedback loop thread to join.
+ */
 void OutputEventHandler::stop()
 {
     RUNNING.store(false);
@@ -79,6 +100,8 @@ void OutputEventHandler::setSteering(double st)
  */
 void OutputEventHandler::sendConstantForce(int level, int duration_ms) 
 {
+    static int effect_id = -1;
+
     if (level < -MAX_FORCE || level > MAX_FORCE)
     {
         throw std::invalid_argument("Force level must be in range [-32767, 32767].\n");
@@ -93,9 +116,16 @@ void OutputEventHandler::sendConstantForce(int level, int duration_ms)
     effect.direction = steeringToDirection(steering);
     effect.replay.length = duration_ms;
 
-    if (ioctl(fd, EVIOCSFF, &effect) < 0) {
+    if (ioctl(fd, EVIOCSFF, &effect) < 0) 
+    {
         perror("Failed to upload FF_CONSTANT effect");
         return;
+    }
+
+    if (effect_id == -1) 
+    {
+    effect_id = effect.id;
+    std::cout << "Uploaded FF_CONSTANT effect: ID = " << effect_id << '\n';
     }
 
     struct input_event play = {};

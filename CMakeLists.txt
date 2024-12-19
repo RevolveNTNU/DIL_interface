@@ -3,10 +3,10 @@ project(DIL_interface)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")  # High optimization level
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBEVDEV REQUIRED libevdev)
+find_package(PkgConfig REQUIRED)               
+pkg_check_modules(LIBEVDEV REQUIRED libevdev)  
 
 set(PUBLIC_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/DIL_interface)
 set(PRIVATE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src)

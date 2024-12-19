@@ -1,5 +1,10 @@
 #include "DIL_interface/input_event_handler.h"
 
+/**
+ * @brief Construct a new Input Event Handler:: Input Event Handler object
+ * 
+ * @param path Path to the input device.
+ */
 InputEventHandler::InputEventHandler(const std::string& path) : devicePath(path) ,dev(nullptr), fd(-1), steering(0.0), throttle(0.0), brake(0.0)
 {
     fd = open(devicePath.c_str(), O_RDONLY | O_NONBLOCK);
@@ -16,6 +21,11 @@ InputEventHandler::InputEventHandler(const std::string& path) : devicePath(path)
     std::cout << "Input device initialized successfully: " << libevdev_get_name(dev) << '\n';
 }
 
+/**
+ * @brief Destroy the Input Event Handler:: Input Event Handler object
+ * 
+ * Stops the event loop thread and frees the libevdev device and file descriptor.
+ */
 InputEventHandler::~InputEventHandler() 
 {
     stop();
@@ -27,7 +37,7 @@ InputEventHandler::~InputEventHandler()
  * @brief Start the event loop thread
  * 
  * Launches the thread by passing in the non-static member function ``eventLoop()``
- * as reference. The thread will run until the ``running`` flag is set to false.
+ * as reference. The thread will run until the shared ``RUNNING`` flag is set to false.
  */
 void InputEventHandler::start()
 {
@@ -45,7 +55,7 @@ void InputEventHandler::start()
 /**
  * @brief Stop the event loop thread.
  * 
- * Sets the ``running`` flag to false and waits for the event loop thread to join.
+ * Sets the shared ``RUNNING`` flag to false and waits for the event loop thread to join.
  */
 void InputEventHandler::stop()
 {
@@ -100,6 +110,14 @@ void InputEventHandler::eventLoop()
     }
 }
 
+/**
+ * @brief Process axis events from the input device.
+ * 
+ * This method processes axis events by event code and normalizes the values to
+ * appropriate ranges.
+ * 
+ * @param ev Input event structure.
+ */
 void InputEventHandler::processAxisEvent(const struct input_event& ev)
 {
     switch (ev.code)
@@ -176,15 +194,18 @@ double InputEventHandler::getBrake() const
 // TODO: Implement automatic connection to correct device.
 // Simple terminal interface to continue with the option (Fanatec)
 
-void listSupportedInputs(const std::string& devicePath) {
+void listSupportedInputs(const std::string& devicePath) 
+{
     int fd = open(devicePath.c_str(), O_RDONLY | O_NONBLOCK);
-    if (fd < 0) {
+    if (fd < 0) 
+    {
         std::cerr << "Failed to open device: " << devicePath << std::endl;
         return;
     }
 
     struct libevdev* dev = nullptr;
-    if (libevdev_new_from_fd(fd, &dev) < 0) {
+    if (libevdev_new_from_fd(fd, &dev) < 0) 
+    {
         std::cerr << "Failed to initialize libevdev." << std::endl;
         close(fd);
         return;
@@ -192,8 +213,10 @@ void listSupportedInputs(const std::string& devicePath) {
 
     std::cout << "Device: " << libevdev_get_name(dev) << std::endl;
 
-    for (int code = 0; code < ABS_MAX; code++) {
-        if (libevdev_has_event_code(dev, EV_ABS, code)) {
+    for (int code = 0; code < ABS_MAX; code++) 
+    {
+        if (libevdev_has_event_code(dev, EV_ABS, code)) 
+        {
             const struct input_absinfo* abs = libevdev_get_abs_info(dev, code);
             std::cout << "Axis: " << libevdev_event_code_get_name(EV_ABS, code)
                       << " (Code: " << code << ")"
@@ -202,8 +225,10 @@ void listSupportedInputs(const std::string& devicePath) {
         }
     }
 
-    for (int code = 0; code < KEY_MAX; code++) {
-        if (libevdev_has_event_code(dev, EV_KEY, code)) {
+    for (int code = 0; code < KEY_MAX; code++) 
+    {
+        if (libevdev_has_event_code(dev, EV_KEY, code)) 
+        {
             std::cout << "Button: " << libevdev_event_code_get_name(EV_KEY, code)
                       << " (Code: " << code << ")" << '\n';
         }
@@ -213,13 +238,15 @@ void listSupportedInputs(const std::string& devicePath) {
     close(fd);
 }
 
-bool isDeviceConnected(const std::string& devicePath) {
+bool isDeviceConnected(const std::string& devicePath) 
+{
     int fd = open(devicePath.c_str(), O_RDONLY | O_NONBLOCK);
     if (fd < 0) return false; 
 
     struct libevdev* dev = nullptr;
     bool connected = false;
-    if (libevdev_new_from_fd(fd, &dev) == 0) {
+    if (libevdev_new_from_fd(fd, &dev) == 0) 
+    {
         connected = true; 
         std::cout << "Device: " << libevdev_get_name(dev) << " at " << devicePath << '\n';
     }
@@ -228,23 +255,28 @@ bool isDeviceConnected(const std::string& devicePath) {
     return connected;
 }
 
-void checkInputDevices() {
+void checkInputDevices() 
+{
     const std::string inputDir = "/dev/input";
     DIR* dir = opendir(inputDir.c_str());
-    if (!dir) {
+    if (!dir) 
+    {
         throw std::runtime_error("Failed to open input directory: " + inputDir + '\n');
     }
 
     struct dirent* entry;
-    while ((entry = readdir(dir)) != nullptr) {
+    while ((entry = readdir(dir)) != nullptr) 
+    {
         if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
             continue;
 
         std::string devicePath = inputDir + "/" + entry->d_name;
 
-        if (isDeviceConnected(devicePath)) {
+        if (isDeviceConnected(devicePath)) 
+        {
             std::cout << "Device is active: " << devicePath << '\n';
-        } else {
+        } else 
+        {
             std::cout << "Device is not active: " << devicePath << '\n';
         }
     }

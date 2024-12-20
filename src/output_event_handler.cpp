@@ -111,7 +111,7 @@ void OutputEventHandler::sendConstantForce(int level, int duration_ms)
     memset(&effect, 0, sizeof(effect));
 
     effect.type = FF_CONSTANT;
-    effect.id = -1;
+    effect.id = effect_id;
     effect.u.constant.level = level;
     effect.direction = steeringToDirection(steering);
     effect.replay.length = duration_ms;
@@ -133,9 +133,11 @@ void OutputEventHandler::sendConstantForce(int level, int duration_ms)
     play.code = effect.id;    
     play.value = 1;           
 
-    if (write(fd, &play, sizeof(play)) < 0) {
+    if (write(fd, &play, sizeof(play)) < 0) 
+    {
         perror("Failed to play FF_CONSTANT effect");
-    } else {
+    } else 
+    {
         std::cout << "Force feedback sent: Level = " << level
                   << ", Duration = " << duration_ms << " ms\n";
     }
@@ -145,7 +147,5 @@ void OutputEventHandler::feedbackLoop()
 {
     while (RUNNING.load())
     {
-        sendConstantForce(0x0900, 1000);
-        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }

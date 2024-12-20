@@ -49,10 +49,11 @@ private:
 
     void eventLoop();
     void processAxisEvent(const struct input_event& ev);
+    void processButtonEvent(const struct input_event& ev);
 
     double normalizeYokeAxis(int value, int min, int max);
     double normalizePedalAxis(int value, int min, int max);
-    
+
 };
 
 #endif // INPUT_EVENT_HANDLER_H

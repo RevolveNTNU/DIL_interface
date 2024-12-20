@@ -87,7 +87,7 @@ void InputEventHandler::eventLoop()
                     processAxisEvent(ev);
                     break;
                 case EV_KEY:
-                    // TODO: Process button events.
+                    processButtonEvent(ev);
                     break;
                 default:
                     break;
@@ -136,7 +136,37 @@ void InputEventHandler::processAxisEvent(const struct input_event& ev)
             // Normalize brake value to range [0, 1]
             brake = normalizePedalAxis(ev.value, 0, 65535);
             break;
-            
+
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief Conceptual method for processing button events.
+ * 
+ * Mapped buttons from the right hand side of the Fanatec wheel.
+ */
+void InputEventHandler::processButtonEvent(const struct input_event& ev)
+{
+    switch (ev.code)
+    {
+        case BTN_THUMB2:
+            // Button B functinoality
+            break;
+
+        case BTN_THUMB:
+            // Button A functionality
+            break;
+
+        case BTN_TRIGGER:
+            // Button X functionality
+            break;
+
+        case BTN_TOP:
+            // Button Y functionality
+            break;
+
         default:
             break;
     }

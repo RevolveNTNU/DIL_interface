@@ -59,7 +59,7 @@ void OutputEventHandler::start()
 void OutputEventHandler::stop()
 {
     RUNNING.store(false);
-    
+
     if (outputThread.joinable())
     {
         outputThread.join();
@@ -92,7 +92,7 @@ void OutputEventHandler::setSteering(double st)
 /**
  * @brief Send a constant force feedback effect to the output device.
  * 
- * This method is mostly just for testing purposes. I am currently using it
+ * This method is mostly just for testing and debugging purposes. I am currently using it
  * to get a feel for how the force feedback works and how it can be controlled.
  * This includes the related functions ``steeringToDirection()`` and ``setSteering()``.
  *

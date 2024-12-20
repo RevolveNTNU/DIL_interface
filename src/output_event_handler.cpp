@@ -59,6 +59,7 @@ void OutputEventHandler::start()
 void OutputEventHandler::stop()
 {
     RUNNING.store(false);
+    
     if (outputThread.joinable())
     {
         outputThread.join();

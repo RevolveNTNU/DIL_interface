@@ -43,11 +43,11 @@ private:
     std::thread outputThread;
 
     static constexpr int MAX_FORCE = 0x7FFF;
+    double steering;         // Normalized steering value [-1, 1]
 
     void feedbackLoop();
     void sendConstantForce(int level, int duration_ms);
-
-    double steering;         // Normalized steering value [-1, 1]
+    
 };
 
 #endif // OUTPUT_EVENT_HANDLER_H

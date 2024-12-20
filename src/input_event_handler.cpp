@@ -126,14 +126,17 @@ void InputEventHandler::processAxisEvent(const struct input_event& ev)
             // Normalize steering value to range [-1, 1]
             steering = normalizeYokeAxis(ev.value, 0, 65535);
             break;
+
         case ABS_Z:
             // Normalize throttle value to range [0, 1]
             throttle = normalizePedalAxis(ev.value, 0, 65535);
             break;
+
         case ABS_RZ:
             // Normalize brake value to range [0, 1]
             brake = normalizePedalAxis(ev.value, 0, 65535);
             break;
+            
         default:
             break;
     }

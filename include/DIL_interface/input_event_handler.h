@@ -43,19 +43,16 @@ private:
 
     std::thread eventThread;
 
-    double steering;
-    double throttle;
-    double brake;
-    // std::unordered_map<InputType, bool> buttonStates;
+    double steering;         // Normalized steering value [-1, 1]
+    double throttle;         // Normalized throttle value [0, 1]
+    double brake;            // Normalized brake value [0, 1]
 
     void eventLoop();
     void processAxisEvent(const struct input_event& ev);
-    // TODO: void processButtonEvent(const struct input_event& ev);
 
     double normalizeYokeAxis(int value, int min, int max);
     double normalizePedalAxis(int value, int min, int max);
-
-    // InputType mapInput(int type, int code);
+    
 };
 
 #endif // INPUT_EVENT_HANDLER_H

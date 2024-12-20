@@ -1,7 +1,7 @@
 #include "DIL_interface/input_event_handler.h"
 
 /**
- * @brief Construct a new Input Event Handler:: Input Event Handler object
+ * @brief Construct a new InputEventHandler object from the input device path.
  * 
  * @param path Path to the input device.
  */
@@ -22,7 +22,7 @@ InputEventHandler::InputEventHandler(const std::string& path) : devicePath(path)
 }
 
 /**
- * @brief Destroy the Input Event Handler:: Input Event Handler object
+ * @brief Destroy the InputEventHandler object.
  * 
  * Stops the event loop thread and frees the libevdev device and file descriptor.
  */

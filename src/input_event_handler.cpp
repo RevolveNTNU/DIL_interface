@@ -164,7 +164,7 @@ double InputEventHandler::normalizeYokeAxis(int value, int min, int max)
  */
 double InputEventHandler::normalizePedalAxis(int value, int min, int max)
 {
-    return (value - max) / (max - min);
+    return (value - min) / static_cast<double>(max - min);
 }
 
 /**
